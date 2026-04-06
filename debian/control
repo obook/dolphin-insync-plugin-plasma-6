@@ -1,0 +1,25 @@
+Source: dolphin-insync-plugin
+Section: kde
+Priority: optional
+Maintainer: Olivier Booklage <obooklagek@gmail.com>
+Build-Depends: debhelper-compat (= 13),
+               cmake,
+               extra-cmake-modules,
+               g++,
+               qt6-base-dev,
+               kf6-kcoreaddons-dev,
+               kf6-kconfig-dev,
+               kf6-kio-dev,
+               kf6-kwidgetsaddons-dev
+Standards-Version: 4.6.2
+Homepage: https://github.com/obook/dolphin-insync-plugin-plasma-6
+
+Package: dolphin-insync-plugin
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: insync-dolphin
+Replaces: insync-dolphin
+Description: Insync context menus and overlay icons for Dolphin (Plasma 6)
+ This plugin adds Insync integration to the Dolphin file manager
+ on KDE Plasma 6. It provides context menu actions (Add to Insync,
+ Share, etc.) and file overlay status icons (synced, syncing, error).

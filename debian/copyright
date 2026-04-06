@@ -1,0 +1,25 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: dolphin-insync-plugin
+Upstream-Contact: Olivier Booklage <obooklagek@gmail.com>
+Source: https://github.com/obook/dolphin-insync-plugin-plasma-6
+
+Files: *
+Copyright: 2026 Olivier Booklage <obooklagek@gmail.com>
+           2025 Tomáš Hnyk <tomashnyk@gmail.com>
+           2025 Kevin B. Burns
+           2021 Kurt Ko <kurt@insynchq.com>
+           2014 Luis Manuel R. Pugoy <lpugoy@insynchq.com>
+           2014 Emmanuel Pescosta <emmanuelpescosta099@gmail.com>
+           2012 Sergei Stolyarov <sergei@regolit.com>
+           2010 Thomas Richard <thomas.richard@proan.be>
+           2009-2010 Peter Penz <peter.penz19@gmail.com>
+License: GPL-2+
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 2 can be found in "/usr/share/common-licenses/GPL-2".
