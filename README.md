@@ -24,9 +24,29 @@ sudo apt install kf6-kcoreaddons-dev kf6-kio-dev kf6-kconfig-dev extra-cmake-mod
 ```
 ### Important: remove the official Insync Dolphin plugin first
 
-If the official `insync-dolphin` package is installed, you **must** remove it before building and installing this plugin. Running both simultaneously causes Dolphin to crash. See the [Uninstall official package](#uninstall-official-package) section below.
+If the official `insync-dolphin` package is installed, you **must** remove it before building and installing this plugin. Running both simultaneously causes Dolphin to crash. If you install via the `.deb` package (see below), the conflict is handled automatically. Otherwise, see the [Uninstall official package](#uninstall-official-package) section below.
 
-### Build
+### Install from .deb package (Ubuntu/Debian)
+
+Pre-built `.deb` packages are available on the [GitHub releases page](https://github.com/obook/dolphin-insync-plugin-plasma-6/releases). Download the latest `.deb` and install it:
+
+```
+sudo apt install ./dolphin-insync-plugin_1.0.0-1_amd64.deb
+```
+
+The package declares a conflict with `insync-dolphin`, so `apt` will refuse to install if the official package is still present. To remove it first:
+
+```
+sudo apt remove insync-dolphin --purge
+```
+
+To uninstall this package later:
+
+```
+sudo apt remove dolphin-insync-plugin
+```
+
+### Build from source
 ```
 cmake -DCMAKE_INSTALL_PREFIX=/usr -B build/
 cmake --build build/
