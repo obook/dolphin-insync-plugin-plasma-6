@@ -43,7 +43,7 @@ InsyncFileItemAction::InsyncFileItemAction(QObject* parent, const QVariantList& 
     Q_UNUSED(args);
 
     controlSocket = new QLocalSocket(parent);
-    helper->connectWithInsync(controlSocket);
+    helper.connectWithInsync(controlSocket);
 }
 
 InsyncFileItemAction::~InsyncFileItemAction()
@@ -56,14 +56,7 @@ QList<QAction *> InsyncFileItemAction::actions(const KFileItemListProperties &fi
 {
     Q_UNUSED(parentWidget);
 
-    // The InsyncFileItemAction::contextMenuActions implemented by Luis only works when
-    // you right click a single file/directory. The snippet below is a part of the code
-    // to handle multiple files/directories selected when opening the context menu
-    // for (const KFileItem& item : fileItemInfos.items()) {
-    //     d->contextFilePaths << QDir(item.localPath()).canonicalPath();
-    // }
-
-    // For simplicity, let's just handle a single file for now
+    /* For now, only handle a single file selection */
     if (fileItemInfos.items().size() > 1 ||
         fileItemInfos.items().size() == 0)
     {
@@ -76,7 +69,7 @@ QList<QAction *> InsyncFileItemAction::actions(const KFileItemListProperties &fi
 
 void InsyncFileItemAction::handleContextAction(const QJsonObject &action)
 {
-    helper->sendCommand(action, controlSocket);
+    helper.sendCommand(action, controlSocket);
 }
 
 QList<QAction *> InsyncFileItemAction::getContextMenuActions(const QString &url)
@@ -86,13 +79,13 @@ QList<QAction *> InsyncFileItemAction::getContextMenuActions(const QString &url)
                    QStringLiteral("CONTEXT-MENU-ITEMS"));
     command.insert(QStringLiteral("full_path"),
                    url);
-    const QVariant reply = helper->sendCommand(command,
+    const QVariant reply = helper.sendCommand(command,
                                                controlSocket, InsyncDolphinPluginHelper::WaitForReply);
 
-    // This happens when insync is not running, so return empty so no menu is shown
+    /* Insync is not running: return empty so no menu is shown */
     if (reply.isNull())
         return QList<QAction *>();
-    // This happens when insync is starting (ByteArray has length 0) or when a file is being uploaded (it returns "null")
+    /* Insync is starting (empty ByteArray) or file is being uploaded (returns "null") */
     else if (reply.canConvert<QByteArray>()) {
         if (reply.toByteArray().length() == 0 || reply.toByteArray() == "null")
             return QList<QAction *>();

@@ -27,12 +27,11 @@
 #ifndef INSYNCFILEITEMACTION_H
 #define INSYNCFILEITEMACTION_H
 
-//#include <KIOWidgets/KAbstractFileItemActionPlugin>
 #include <KAbstractFileItemActionPlugin>
 #include <QPointer>
 
 class QLocalSocket;
-class InsyncDolphinPluginHelper;
+#include "insyncdolphinpluginhelper.hpp"
 
 /**
  * @brief Insync implementation for the KAbstractFileItemActionPlugin interface.
@@ -42,7 +41,7 @@ class InsyncFileItemAction : public KAbstractFileItemActionPlugin
     Q_OBJECT
 
 private:
-    InsyncDolphinPluginHelper *helper;
+    InsyncDolphinPluginHelper helper;
     QPointer<QLocalSocket> controlSocket;
 
 public:

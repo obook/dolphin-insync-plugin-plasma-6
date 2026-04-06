@@ -66,10 +66,10 @@ QVariant InsyncDolphinPluginHelper::sendCommand(const QJsonObject &command,
         return QVariant();
     }
 
-    const QJsonDocument *request = new QJsonDocument(command);
+    const QJsonDocument request(command);
 
     socket->readAll();
-    socket->write(request->toJson());
+    socket->write(request.toJson());
     socket->flush();
 
     if (mode == SendCommandOnly)
@@ -87,9 +87,7 @@ QVariant InsyncDolphinPluginHelper::sendCommand(const QJsonObject &command,
     QJsonDocument jsonReply = QJsonDocument::fromJson(reply.toUtf8());
     if (jsonReply.toVariant().isNull())
     {
-        // Response wasn't JSON serializable
-
-        // Trim quotes
+        /* Response was not JSON serializable, trim surrounding quotes */
         if (reply.startsWith(QStringLiteral("\"")))
         {
             reply.remove(0, 1);

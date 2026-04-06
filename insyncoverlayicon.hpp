@@ -29,7 +29,7 @@
 
 #include <KOverlayIconPlugin>
 
-class InsyncDolphinPluginHelper;
+#include "insyncdolphinpluginhelper.hpp"
 
 /**
  * @brief Insync implementation for the KOverlayIconPlugin interface.
@@ -40,7 +40,7 @@ class InsyncOverlayIcon : public KOverlayIconPlugin
     Q_OBJECT
 
 private:
-    InsyncDolphinPluginHelper *helper;
+    InsyncDolphinPluginHelper helper;
 
 public:
     QStringList getOverlays(const QUrl &item) override;

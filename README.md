@@ -7,7 +7,7 @@ Insync context menus are implemented using the KDE API [KAbstractFileItemActionP
 
 
 ### Overlay icons
-Insync file overlay status icons are implemented using [KOverlayIconPlugin]. The `KOverlayIconPlugin:getOverlays` is called on every file/directory currently showing in Dolphin. Since it is called on every file/directory, we create a new `QLocalSocket` on every call as it can cause segfaults if there are too many files/directories being queried. The build library file for this is added to the `KDE_PLUGIN_DIR/kf5/overlayicon` folder and it should work without needing a KDE service file.
+Insync file overlay status icons are implemented using [KOverlayIconPlugin]. The `KOverlayIconPlugin:getOverlays` is called on every file/directory currently showing in Dolphin. Since it is called on every file/directory, we create a new `QLocalSocket` on every call as it can cause segfaults if there are too many files/directories being queried. The build library file for this is added to the `KDE_PLUGIN_DIR/kf6/overlayicon` folder and it should work without needing a KDE service file.
 
 
 ### Helper library
@@ -22,6 +22,10 @@ On Kubuntu (and possibly Ubuntu and Debian), you need at least these:
 ```
 sudo apt install kf6-kcoreaddons-dev kf6-kio-dev kf6-kconfig-dev extra-cmake-modules qt6-base-dev g++ cmake
 ```
+### Important: remove the official Insync Dolphin plugin first
+
+If the official `insync-dolphin` package is installed, you **must** remove it before building and installing this plugin. Running both simultaneously causes Dolphin to crash. See the [Uninstall official package](#uninstall-official-package) section below.
+
 ### Build
 ```
 cmake -DCMAKE_INSTALL_PREFIX=/usr -B build/
@@ -36,15 +40,34 @@ sudo cmake --install build
 Note that everything is installed into `/usr`, not `/usr/local`(which does not work).
 
 ### Uninstall
+
+On Fedora (libraries are in `/usr/lib64/`):
 ```
 sudo rm /usr/lib64/libinsyncdolphinpluginhelper.so /usr/lib64/qt6/plugins/kf6/kfileitemaction/insyncfileitemaction.so /usr/lib64/qt6/plugins/kf6/overlayicon/insyncoverlayicon.so /usr/share/icons/hicolor/64x64/emblems/emblem-insync-* /usr/share/icons/hicolor/scalable/emblems/emblem-insync-* ; sudo rmdir /usr/share/icons/hicolor/64x64/emblems /usr/share/icons/hicolor/scalable/emblems
-
 ```
-In case this throws an error, note where the files you are trying to remove are placed during the installation and remove those.
+
+On Ubuntu/Debian (libraries are in `/usr/lib/x86_64-linux-gnu/`):
+```
+sudo rm /usr/lib/x86_64-linux-gnu/libinsyncdolphinpluginhelper.so /usr/lib/x86_64-linux-gnu/qt6/plugins/kf6/kfileitemaction/insyncfileitemaction.so /usr/lib/x86_64-linux-gnu/qt6/plugins/kf6/overlayicon/insyncoverlayicon.so /usr/share/icons/hicolor/64x64/emblems/emblem-insync-* /usr/share/icons/hicolor/scalable/emblems/emblem-insync-* ; sudo rmdir /usr/share/icons/hicolor/64x64/emblems /usr/share/icons/hicolor/scalable/emblems
+```
+
+If any of these commands throw an error, check where the files were placed during installation and remove those instead.
+
+### Uninstall official package
+
+If you have the official Insync package installed, you can uninstall it using your package manager. For example, 
+On Ubuntu (and possibly Debian):
+```
+sudo apt remove insync-dolphin --purge
+```
+
+on Fedora:
+```
+sudo dnf remove insync-dolphin --purge
+```
 
 ### Additional references
 `QJson` Docs: https://doc.qt.io/qt-6/json.html
-
 
 [KAbstractFileItemActionPlugin]: https://api.kde.org/kabstractfileitemactionplugin.html
 [KActionMenu]: https://api.kde.org/kactionmenu.html

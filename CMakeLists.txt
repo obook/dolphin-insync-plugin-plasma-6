@@ -47,19 +47,19 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
 set(CMAKE_INSTALL_RPATH "")
 
 # Dolphin plugin helper
-add_definitions(-DTRANSLATION_DOMAIN=\"insyncdolphinpluginhelper\")
 set(INSYNC_DOLPHIN_PLUGIN_HELPER insyncdolphinpluginhelper)
 add_library(${INSYNC_DOLPHIN_PLUGIN_HELPER} SHARED insyncdolphinpluginhelper.cpp
     insyncdolphinpluginhelper.hpp)
+target_compile_definitions(${INSYNC_DOLPHIN_PLUGIN_HELPER} PRIVATE TRANSLATION_DOMAIN="insyncdolphinpluginhelper")
 target_link_libraries(${INSYNC_DOLPHIN_PLUGIN_HELPER} PRIVATE Qt6::Network)
 generate_export_header(${INSYNC_DOLPHIN_PLUGIN_HELPER} BASE_NAME insyncdolphinpluginhelper)
 install(TARGETS ${INSYNC_DOLPHIN_PLUGIN_HELPER} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Item action plugin
-add_definitions(-DTRANSLATION_DOMAIN=\"insyncfileitemaction\")
 set(INSYNC_ACTION_PLUGIN insyncfileitemaction)
 add_library(${INSYNC_ACTION_PLUGIN} MODULE ${INSYNC_ACTION_PLUGIN}.cpp
     insyncfileitemaction.hpp)
+target_compile_definitions(${INSYNC_ACTION_PLUGIN} PRIVATE TRANSLATION_DOMAIN="insyncfileitemaction")
 target_link_libraries(${INSYNC_ACTION_PLUGIN} PRIVATE
     KF6::CoreAddons
     KF6::KIOCore
@@ -70,11 +70,11 @@ target_link_libraries(${INSYNC_ACTION_PLUGIN} PRIVATE
 install(TARGETS ${INSYNC_ACTION_PLUGIN} DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf6/kfileitemaction)
 
 # Overlay icon plugin
-add_definitions(-DTRANSLATION_DOMAIN=\"insyncoverlayicon\")
 set(INSYNC_OVERLAY_PLUGIN insyncoverlayicon)
 add_library(${INSYNC_OVERLAY_PLUGIN} MODULE ${INSYNC_OVERLAY_PLUGIN}.cpp
     insyncoverlayicon.hpp
     insyncoverlayicon.json)
+target_compile_definitions(${INSYNC_OVERLAY_PLUGIN} PRIVATE TRANSLATION_DOMAIN="insyncoverlayicon")
 target_link_libraries(${INSYNC_OVERLAY_PLUGIN} PRIVATE
     KF6::CoreAddons
     KF6::KIOCore

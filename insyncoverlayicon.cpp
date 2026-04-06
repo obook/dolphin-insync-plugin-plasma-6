@@ -51,17 +51,14 @@ QStringList InsyncOverlayIcon::getOverlays(const QUrl &url)
     if (status == QStringLiteral("SYNCED"))
     {
         overlays.append(QStringLiteral("emblem-insync-synced"));
-        //overlays << "emblem-insync-synced";
     }
     else if (status == QStringLiteral("SYNCING"))
     {
         overlays.append(QStringLiteral("emblem-insync-syncing"));
-        //overlays << "emblem-insync-syncing";
     }
     else if (status == QStringLiteral("ERROR"))
     {
         overlays.append(QStringLiteral("emblem-insync-error"));
-        //overlays << "emblem-insync-error";
     }
 
     return overlays;
@@ -74,7 +71,7 @@ QString InsyncOverlayIcon::getFileStatus(const QString &url) const
     command.insert(QStringLiteral("full_path"), QFileInfo(url).canonicalFilePath());
 
     QPointer<QLocalSocket> itemStateSocket = new QLocalSocket;
-    const QVariant reply = helper->sendCommand(command, itemStateSocket, InsyncDolphinPluginHelper::WaitForReply);
+    const QVariant reply = helper.sendCommand(command, itemStateSocket, InsyncDolphinPluginHelper::WaitForReply);
     delete itemStateSocket;
 
     return reply.toString();
