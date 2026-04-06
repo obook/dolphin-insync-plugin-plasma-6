@@ -1,4 +1,5 @@
 /*****************************************************************************
+ *   Copyright (C) 2026 by Olivier Booklage <obooklagek@gmail.com>           *
  *   Copyright (C) 2025 by Tomáš Hnyk <tomashnyk@gmail.com>                  *
  *   Copyright (C) 2025 by Kevin B. Burns                                    *
  *   Copyright (C) 2021 by Kurt Ko <kurt@insynchq.com>                       *
