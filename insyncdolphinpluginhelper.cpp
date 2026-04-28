@@ -38,6 +38,10 @@
 bool InsyncDolphinPluginHelper::connectWithInsync(const QPointer<QLocalSocket> &socket,
                                                   SendCommandTimeout timeout) const
 {
+    // Fix: guard against a QPointer whose target was destroyed before this call
+    if (socket.isNull())
+        return false;
+
     QString socketFileName = QLatin1String("insync") % QString::number(getuid()) % QLatin1String(".sock");
     QString insyncSocketPath = QDir::tempPath() % QDir::separator() % socketFileName;
     QString controlSocketPath = QDir::toNativeSeparators(insyncSocketPath);
@@ -78,11 +82,12 @@ QVariant InsyncDolphinPluginHelper::sendCommand(const QJsonObject &command,
         return QVariant();
     }
 
+    // Fix: drop the early `break` so multi-packet replies are fully read.
+    // waitForReadyRead returns false on timeout, ending the loop naturally.
     QString reply;
     while (socket->waitForReadyRead(timeout == ShortTimeout ? 100 : 500))
     {
         reply.append(QString::fromUtf8(socket->readAll()));
-        break;
     }
 
     QJsonDocument jsonReply = QJsonDocument::fromJson(reply.toUtf8());

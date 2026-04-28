@@ -118,6 +118,9 @@ QList<QAction *> InsyncFileItemAction::getContextMenuActions(const QString &url)
     for (int i = 0; i < menuitems.size(); i++)
     {
         QList<QVariant> commandinfo = menuitems.at(i).toList();
+        // Fix: prevent out-of-bounds access on malformed menu items from Insync
+        if (commandinfo.size() < 2)
+            continue;
         QString text = commandinfo.at(0).toString();
         QString method = commandinfo.at(1).toString();
 
@@ -133,7 +136,10 @@ QList<QAction *> InsyncFileItemAction::getContextMenuActions(const QString &url)
             actionJson.insert(QStringLiteral("method"), method);
             actionJson.insert(QStringLiteral("full_path"), url);
 
-            connect(actionItem, &QAction::triggered, [=] {
+            // Fix: pass `this` as receiver so the lambda is auto-disconnected
+            // when the plugin is destroyed; otherwise it could call handleContextAction
+            // after `helper` was deleted in the destructor body
+            connect(actionItem, &QAction::triggered, this, [=] {
                 handleContextAction(actionJson);
             });
 

@@ -87,7 +87,9 @@ QString InsyncOverlayIcon::getFileStatus(const QString &url) const
 
     QPointer<QLocalSocket> itemStateSocket = new QLocalSocket;
     const QVariant reply = helper->sendCommand(command, itemStateSocket, InsyncDolphinPluginHelper::WaitForReply);
-    delete itemStateSocket;
+    // Fix: use deleteLater() so any posted events (disconnected/error) on this socket
+    // are processed before destruction; getOverlays() runs on a worker thread
+    itemStateSocket->deleteLater();
 
     return reply.toString();
 }
