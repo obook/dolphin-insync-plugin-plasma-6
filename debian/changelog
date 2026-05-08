@@ -1,3 +1,18 @@
+dolphin-insync-plugin (1.0.1-1) noble; urgency=medium
+
+  * Add defensive null checks on QPointer<QLocalSocket> arguments
+    to prevent crashes when the socket has already been destroyed.
+  * Remove redundant manual delete on a Qt-parented socket.
+  * Replace heap-allocated socket in getFileStatus with a
+    stack-allocated one (RAII, exception-safe).
+  * Drop the unused controlSocketPath member that was shadowed by
+    a local variable.
+  * Add Doxygen documentation for public classes, enums and methods.
+  * Add VERSION/SOVERSION to libinsyncdolphinpluginhelper.
+  * Add build.sh that compiles the project and produces the .deb.
+
+ -- Olivier Booklage <obooklagek@gmail.com>  Fri, 08 May 2026 12:52:42 +0200
+
 dolphin-insync-plugin (1.0.0-1) noble; urgency=medium
 
   * Initial Debian packaging.
