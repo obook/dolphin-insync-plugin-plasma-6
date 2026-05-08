@@ -25,6 +25,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA              *
  *****************************************************************************/
 
+/*
+ * insyncoverlayicon.cpp
+ * Implementation of the Dolphin overlay-icon plugin.
+ */
+
 #include "insyncoverlayicon.hpp"
 #include "insyncdolphinpluginhelper.hpp"
 
@@ -71,9 +76,17 @@ QString InsyncOverlayIcon::getFileStatus(const QString &url) const
     command.insert(QStringLiteral("command"), QStringLiteral("GET-FILE-STATUS"));
     command.insert(QStringLiteral("full_path"), QFileInfo(url).canonicalFilePath());
 
-    QPointer<QLocalSocket> itemStateSocket = new QLocalSocket;
-    const QVariant reply = helper.sendCommand(command, itemStateSocket, InsyncDolphinPluginHelper::WaitForReply);
-    delete itemStateSocket;
+    /*
+     * A fresh socket is used for every query: getOverlays() is
+     * called once per visible file in Dolphin, and reusing one
+     * socket across many concurrent queries was observed to crash
+     * the process.
+     */
+    QLocalSocket itemStateSocket;
+    QPointer<QLocalSocket> socketPtr(&itemStateSocket);
+    const QVariant reply = helper.sendCommand(command,
+                                              socketPtr,
+                                              InsyncDolphinPluginHelper::WaitForReply);
 
     return reply.toString();
 }

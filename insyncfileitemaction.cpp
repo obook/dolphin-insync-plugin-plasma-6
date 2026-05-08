@@ -25,6 +25,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA              *
  *****************************************************************************/
 
+/*
+ * insyncfileitemaction.cpp
+ * Implementation of the Dolphin right-click context-menu plugin.
+ */
+
 #include "insyncfileitemaction.hpp"
 #include "insyncdolphinpluginhelper.hpp"
 
@@ -38,18 +43,21 @@
 #include <QStringBuilder>
 #include <QJsonObject>
 
-InsyncFileItemAction::InsyncFileItemAction(QObject* parent, const QVariantList& args)
+InsyncFileItemAction::InsyncFileItemAction(QObject *parent, const QVariantList &args)
     : KAbstractFileItemActionPlugin(parent)
 {
     Q_UNUSED(args);
 
+    /*
+     * The socket is parented to `parent` so Qt destroys it
+     * automatically; no manual delete is needed in the destructor.
+     */
     controlSocket = new QLocalSocket(parent);
     helper.connectWithInsync(controlSocket);
 }
 
 InsyncFileItemAction::~InsyncFileItemAction()
 {
-    delete controlSocket;
 }
 
 QList<QAction *> InsyncFileItemAction::actions(const KFileItemListProperties &fileItemInfos,
@@ -57,9 +65,8 @@ QList<QAction *> InsyncFileItemAction::actions(const KFileItemListProperties &fi
 {
     Q_UNUSED(parentWidget);
 
-    /* For now, only handle a single file selection */
-    if (fileItemInfos.items().size() > 1 ||
-        fileItemInfos.items().size() == 0)
+    /* The Insync client does not support multi-selection yet. */
+    if (fileItemInfos.items().size() != 1)
     {
         return QList<QAction *>();
     }
@@ -70,6 +77,15 @@ QList<QAction *> InsyncFileItemAction::actions(const KFileItemListProperties &fi
 
 void InsyncFileItemAction::handleContextAction(const QJsonObject &action)
 {
+    /*
+     * If Dolphin destroyed the socket before the user clicked the
+     * menu entry, controlSocket would be null. The helper checks
+     * for this too, but bailing out early avoids a useless call.
+     */
+    if (controlSocket.isNull())
+    {
+        return;
+    }
     helper.sendCommand(action, controlSocket);
 }
 
@@ -81,15 +97,25 @@ QList<QAction *> InsyncFileItemAction::getContextMenuActions(const QString &url)
     command.insert(QStringLiteral("full_path"),
                    url);
     const QVariant reply = helper.sendCommand(command,
-                                               controlSocket, InsyncDolphinPluginHelper::WaitForReply);
+                                               controlSocket,
+                                               InsyncDolphinPluginHelper::WaitForReply);
 
-    /* Insync is not running: return empty so no menu is shown */
+    /* Insync is not running: return empty so no menu is shown. */
     if (reply.isNull())
+    {
         return QList<QAction *>();
-    /* Insync is starting (empty ByteArray) or file is being uploaded (returns "null") */
-    else if (reply.canConvert<QByteArray>()) {
+    }
+
+    /*
+     * Insync is starting (empty ByteArray) or the file is being
+     * uploaded (the daemon returns the literal string "null").
+     */
+    if (reply.canConvert<QByteArray>())
+    {
         if (reply.toByteArray().length() == 0 || reply.toByteArray() == "null")
+        {
             return QList<QAction *>();
+        }
     }
 
     QList<QVariant> menuinfo = reply.toList();

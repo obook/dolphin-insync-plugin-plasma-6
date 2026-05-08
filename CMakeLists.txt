@@ -50,6 +50,9 @@ set(CMAKE_INSTALL_RPATH "")
 set(INSYNC_DOLPHIN_PLUGIN_HELPER insyncdolphinpluginhelper)
 add_library(${INSYNC_DOLPHIN_PLUGIN_HELPER} SHARED insyncdolphinpluginhelper.cpp
     insyncdolphinpluginhelper.hpp)
+set_target_properties(${INSYNC_DOLPHIN_PLUGIN_HELPER} PROPERTIES
+    VERSION 1.0.0
+    SOVERSION 1)
 target_compile_definitions(${INSYNC_DOLPHIN_PLUGIN_HELPER} PRIVATE TRANSLATION_DOMAIN="insyncdolphinpluginhelper")
 target_link_libraries(${INSYNC_DOLPHIN_PLUGIN_HELPER} PRIVATE Qt6::Network)
 generate_export_header(${INSYNC_DOLPHIN_PLUGIN_HELPER} BASE_NAME insyncdolphinpluginhelper)

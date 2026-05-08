@@ -25,17 +25,34 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA              *
  *****************************************************************************/
 
+/*
+ * insyncfileitemaction.hpp
+ * Insync context-menu plugin for Dolphin.
+ *
+ * Implements the KAbstractFileItemActionPlugin interface so that
+ * Dolphin calls into this plugin whenever the user right-clicks on
+ * a file or directory. The plugin asks the Insync daemon (through
+ * InsyncDolphinPluginHelper) for the list of menu items applicable
+ * to the selected path and exposes them in a KActionMenu submenu.
+ *
+ * Only single-selection is supported, since the Insync client does
+ * not yet handle multi-file context menu queries.
+ */
+
 #ifndef INSYNCFILEITEMACTION_H
 #define INSYNCFILEITEMACTION_H
 
 #include <KAbstractFileItemActionPlugin>
 #include <QPointer>
 
-class QLocalSocket;
 #include "insyncdolphinpluginhelper.hpp"
 
 /**
- * @brief Insync implementation for the KAbstractFileItemActionPlugin interface.
+ * @brief Insync implementation of KAbstractFileItemActionPlugin.
+ *
+ * Provides the right-click context-menu entries (Add to Insync,
+ * Share, etc.) by querying the Insync daemon at right-click time
+ * and building a KActionMenu submenu from its reply.
  */
 class InsyncFileItemAction : public KAbstractFileItemActionPlugin
 {
@@ -46,16 +63,49 @@ private:
     QPointer<QLocalSocket> controlSocket;
 
 public:
+    /**
+     * @brief Construct the plugin and open the control socket.
+     *
+     * @param parent  Parent QObject (passed by the KDE plugin loader).
+     * @param args    Plugin arguments (unused).
+     */
     InsyncFileItemAction(QObject *parent, const QVariantList &args);
+
     ~InsyncFileItemAction() override;
 
+    /**
+     * @brief Return the context-menu actions for the selected items.
+     *
+     * Called by Dolphin every time the user right-clicks. Only
+     * single-item selections produce actions; otherwise an empty
+     * list is returned and no Insync entries are added.
+     *
+     * @param fileItemInfos  Information about the selected items.
+     * @param parentWidget   The widget that owns the menu (unused).
+     * @returns A list containing the Insync KActionMenu, or empty.
+     */
     QList<QAction *> actions(const KFileItemListProperties &fileItemInfos,
                              QWidget *parentWidget) override;
 
 private Q_SLOTS:
+    /**
+     * @brief Forward a context-menu activation to the Insync daemon.
+     *
+     * @param action  The JSON command associated with the chosen menu entry.
+     */
     void handleContextAction(const QJsonObject &action);
 
 private:
+    /**
+     * @brief Build the Insync submenu for a single selected path.
+     *
+     * Sends a CONTEXT-MENU-ITEMS command to the daemon and converts
+     * the returned title and entries into a KActionMenu.
+     *
+     * @param url  Local path of the selected file or directory.
+     * @returns A list containing the KActionMenu, or empty if the
+     *          daemon is not running or has nothing to offer.
+     */
     QList<QAction *> getContextMenuActions(const QString &url);
 };
 

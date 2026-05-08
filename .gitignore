@@ -1,6 +1,14 @@
 #Build
 CMakeLists.txt.user
-/build*
+/build*/
+/dist/
+/obj-*/
+/debian/.debhelper/
+/debian/debhelper-build-stamp
+/debian/dolphin-insync-plugin/
+/debian/dolphin-insync-plugin.debhelper.log
+/debian/dolphin-insync-plugin.substvars
+/debian/files
 .clang-format
 *~
 

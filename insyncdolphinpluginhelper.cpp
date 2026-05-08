@@ -25,6 +25,12 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA              *
  *****************************************************************************/
 
+/*
+ * insyncdolphinpluginhelper.cpp
+ * Implementation of the connection and JSON command protocol used by
+ * both Insync Dolphin plugins to talk to the local Insync daemon.
+ */
+
 #include <insyncdolphinpluginhelper.hpp>
 
 #include <unistd.h>
@@ -36,18 +42,50 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+namespace
+{
+    /* Timeout (ms) for short, interactive socket waits. */
+    constexpr int SHORT_TIMEOUT_MS = 100;
+    /* Timeout (ms) used when the daemon may be slow to respond. */
+    constexpr int LONG_TIMEOUT_MS = 500;
+
+    /*
+     * Pick the actual millisecond value for a given timeout category.
+     */
+    int timeoutToMs(InsyncDolphinPluginHelper::SendCommandTimeout timeout)
+    {
+        return (timeout == InsyncDolphinPluginHelper::ShortTimeout)
+            ? SHORT_TIMEOUT_MS
+            : LONG_TIMEOUT_MS;
+    }
+}
+
 bool InsyncDolphinPluginHelper::connectWithInsync(const QPointer<QLocalSocket> &socket,
                                                   SendCommandTimeout timeout) const
 {
+    /*
+     * Defensive check: a QPointer becomes null automatically when
+     * the underlying QObject is destroyed. Dereferencing a null
+     * QPointer would crash the host process (Dolphin).
+     */
+    if (socket.isNull())
+    {
+        return false;
+    }
+
+    /*
+     * The Insync daemon listens on a per-user socket named
+     * insync<uid>.sock under the system temp directory.
+     */
     QString socketFileName = QLatin1String("insync") % QString::number(getuid()) % QLatin1String(".sock");
     QString insyncSocketPath = QDir::tempPath() % QDir::separator() % socketFileName;
-    QString controlSocketPath = QDir::toNativeSeparators(insyncSocketPath);
+    QString socketPath = QDir::toNativeSeparators(insyncSocketPath);
 
     if (socket->state() != QLocalSocket::ConnectedState)
     {
-        socket->connectToServer(controlSocketPath);
+        socket->connectToServer(socketPath);
 
-        if (!socket->waitForConnected(timeout == ShortTimeout ? 100 : 500))
+        if (!socket->waitForConnected(timeoutToMs(timeout)))
         {
             socket->abort();
             return false;
@@ -62,6 +100,12 @@ QVariant InsyncDolphinPluginHelper::sendCommand(const QJsonObject &command,
                                                 SendCommandMode mode,
                                                 SendCommandTimeout timeout) const
 {
+    /* Defensive null check before any pointer dereference. */
+    if (socket.isNull())
+    {
+        return QVariant();
+    }
+
     if (!connectWithInsync(socket, timeout))
     {
         return QVariant();
@@ -69,6 +113,10 @@ QVariant InsyncDolphinPluginHelper::sendCommand(const QJsonObject &command,
 
     const QJsonDocument request(command);
 
+    /*
+     * Drain any leftover data from a previous exchange before
+     * sending so that the next read returns only the new reply.
+     */
     socket->readAll();
     socket->write(request.toJson());
     socket->flush();
@@ -78,8 +126,14 @@ QVariant InsyncDolphinPluginHelper::sendCommand(const QJsonObject &command,
         return QVariant();
     }
 
+    /*
+     * Insync replies in a single chunk, so as soon as the socket
+     * signals data ready we read everything and break out of the
+     * loop. The while form is used to apply the timeout on the
+     * initial wait.
+     */
     QString reply;
-    while (socket->waitForReadyRead(timeout == ShortTimeout ? 100 : 500))
+    while (socket->waitForReadyRead(timeoutToMs(timeout)))
     {
         reply.append(QString::fromUtf8(socket->readAll()));
         break;

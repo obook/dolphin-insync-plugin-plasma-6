@@ -25,6 +25,20 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA              *
  *****************************************************************************/
 
+/*
+ * insyncoverlayicon.hpp
+ * Insync overlay-icon plugin for Dolphin.
+ *
+ * Implements the KOverlayIconPlugin interface so that Dolphin asks
+ * this plugin for status overlays (synced, syncing, error) on every
+ * file or directory it displays. The plugin queries the Insync
+ * daemon for each path through InsyncDolphinPluginHelper.
+ *
+ * Because getOverlays() is invoked for every visible item, a fresh
+ * QLocalSocket is created on every call: sharing a single socket
+ * across many concurrent queries was found to cause segfaults.
+ */
+
 #ifndef INSYNCOVERLAYICON_H
 #define INSYNCOVERLAYICON_H
 
@@ -33,7 +47,11 @@
 #include "insyncdolphinpluginhelper.hpp"
 
 /**
- * @brief Insync implementation for the KOverlayIconPlugin interface.
+ * @brief Insync implementation of KOverlayIconPlugin.
+ *
+ * Returns the list of emblem icons (synced / syncing / error) that
+ * Dolphin draws on top of file thumbnails. Called by Dolphin once
+ * per visible file or directory.
  */
 class InsyncOverlayIcon : public KOverlayIconPlugin
 {
@@ -44,9 +62,24 @@ private:
     InsyncDolphinPluginHelper helper;
 
 public:
-    QStringList getOverlays(const QUrl &item) override;
+    /**
+     * @brief Return the list of overlay emblems for a given URL.
+     *
+     * Only local files are queried; remote URLs return an empty list.
+     *
+     * @param url  URL of the file or directory to inspect.
+     * @returns The emblem names to overlay (possibly empty).
+     */
+    QStringList getOverlays(const QUrl &url) override;
 
 private:
+    /**
+     * @brief Ask the Insync daemon for the sync status of @p url.
+     *
+     * @param url  Local path to query.
+     * @returns The status as a string (e.g. "SYNCED", "SYNCING",
+     *          "ERROR"), or empty if the daemon is not running.
+     */
     QString getFileStatus(const QString &url) const;
 };
 
