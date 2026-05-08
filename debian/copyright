@@ -1,10 +1,10 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: dolphin-insync-plugin
-Upstream-Contact: Olivier Booklage <obooklagek@gmail.com>
+Upstream-Contact: Olivier Booklage <obooklage@gmail.com>
 Source: https://github.com/obook/dolphin-insync-plugin-plasma-6
 
 Files: *
-Copyright: 2026 Olivier Booklage <obooklagek@gmail.com>
+Copyright: 2026 Olivier Booklage <obooklage@gmail.com>
            2025 Tomáš Hnyk <tomashnyk@gmail.com>
            2025 Kevin B. Burns
            2021 Kurt Ko <kurt@insynchq.com>

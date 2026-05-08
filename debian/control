@@ -1,7 +1,7 @@
 Source: dolphin-insync-plugin
 Section: kde
 Priority: optional
-Maintainer: Olivier Booklage <obooklagek@gmail.com>
+Maintainer: Olivier Booklage <obooklage@gmail.com>
 Build-Depends: debhelper-compat (= 13),
                cmake,
                extra-cmake-modules,
